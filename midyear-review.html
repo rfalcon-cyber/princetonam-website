@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="css/site.css">
 <style>
   .review-hero { background: linear-gradient(135deg, #1B2A4A 0%, #2a3f5f 100%); color: white; padding: 80px 24px; text-align: center; }
-  .review-hero h1 { font-size: clamp(28px, 6vw, 48px); margin-bottom: 16px; }
+  .review-hero h1 { font-size: clamp(28px, 6vw, 48px); margin-bottom: 16px; color: white; }
   .review-hero .date { font-size: 18px; opacity: 0.9; }
   .review-content { max-width: 900px; margin: 60px auto; padding: 24px; }
   .review-content h2 { font-size: 32px; margin: 40px 0 16px; color: #1B2A4A; border-bottom: 2px solid #A98E4A; padding-bottom: 12px; }
@@ -96,7 +96,7 @@
     <div class="lead-gate-content">
       <h2>Download the Full Review</h2>
       <p>Get the complete analysis with charts, detailed market data, and deeper insights into our investment strategy.</p>
-      <form name="midyear-review" method="POST" netlify>
+      <form name="midyear-review" method="POST" netlify action="/thank-you.html">
         <div class="lead-form">
           <div class="form-group">
             <label for="first-name">First Name *</label>
