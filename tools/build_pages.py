@@ -17,7 +17,7 @@ WHO_WE_SERVE_SUBITEMS = [
     ("retirees.html", "Retirees"),
     ("business-owners.html", "Business Owners"),
     ("foundations-endowments.html", "Foundations &amp; Endowments"),
-    ("professionals.html", "Executives"),
+    ("executives.html", "Executives"),
     ("institutional.html", "Institutions"),
 ]
 

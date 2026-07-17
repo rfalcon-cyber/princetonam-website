@@ -138,7 +138,7 @@ def shell(title, desc, body, canonical_slug):
           <li><a href="../retirees.html">Retirees</a></li>
           <li><a href="../business-owners.html">Business Owners</a></li>
           <li><a href="../foundations-endowments.html">Foundations &amp; Endowments</a></li>
-          <li><a href="../professionals.html">Executives</a></li>
+          <li><a href="../executives.html">Executives</a></li>
           <li><a href="../institutional.html">Institutions</a></li>
         </ul>
       </li>
@@ -161,7 +161,7 @@ def shell(title, desc, body, canonical_slug):
     <li class="mobile-submenu"><a href="../retirees.html">Retirees</a></li>
     <li class="mobile-submenu"><a href="../business-owners.html">Business Owners</a></li>
     <li class="mobile-submenu"><a href="../foundations-endowments.html">Foundations &amp; Endowments</a></li>
-    <li class="mobile-submenu"><a href="../professionals.html">Executives</a></li>
+    <li class="mobile-submenu"><a href="../executives.html">Executives</a></li>
     <li class="mobile-submenu"><a href="../institutional.html">Institutions</a></li>
     <li><a href="../approach.html">How We Invest</a></li>
     <li><a href="../team.html">Team</a></li>
@@ -260,7 +260,7 @@ index = f"""<!DOCTYPE html>
           <li><a href="retirees.html">Retirees</a></li>
           <li><a href="business-owners.html">Business Owners</a></li>
           <li><a href="foundations-endowments.html">Foundations &amp; Endowments</a></li>
-          <li><a href="professionals.html">Executives</a></li>
+          <li><a href="executives.html">Executives</a></li>
           <li><a href="institutional.html">Institutions</a></li>
         </ul>
       </li>
@@ -283,7 +283,7 @@ index = f"""<!DOCTYPE html>
     <li class="mobile-submenu"><a href="retirees.html">Retirees</a></li>
     <li class="mobile-submenu"><a href="business-owners.html">Business Owners</a></li>
     <li class="mobile-submenu"><a href="foundations-endowments.html">Foundations &amp; Endowments</a></li>
-    <li class="mobile-submenu"><a href="professionals.html">Executives</a></li>
+    <li class="mobile-submenu"><a href="executives.html">Executives</a></li>
     <li class="mobile-submenu"><a href="institutional.html">Institutions</a></li>
     <li><a href="approach.html">How We Invest</a></li>
     <li><a href="team.html">Team</a></li>
