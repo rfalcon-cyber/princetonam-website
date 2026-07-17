@@ -131,7 +131,17 @@ def shell(title, desc, body, canonical_slug):
     <a class="brand" href="../home.html">Princeton <span>Asset Management</span></a>
     <nav aria-label="Primary"><ul class="nav-links">
       <li><a href="../services.html">Services</a></li>
-      <li><a href="../families.html">Who We Serve</a></li>
+      <li class="has-dropdown"><a href="../families.html">Who We Serve</a>
+        <ul class="nav-dropdown">
+          <li><a href="../families.html">Families</a></li>
+          <li><a href="../professionals.html">Professionals</a></li>
+          <li><a href="../retirees.html">Retirees</a></li>
+          <li><a href="../business-owners.html">Business Owners</a></li>
+          <li><a href="../foundations-endowments.html">Foundations &amp; Endowments</a></li>
+          <li><a href="../professionals.html">Executives</a></li>
+          <li><a href="../institutional.html">Institutions</a></li>
+        </ul>
+      </li>
       <li><a href="../approach.html">How We Invest</a></li>
       <li><a href="../team.html">Team</a></li>
       <li><a href="../fees.html">Fees</a></li>
@@ -146,6 +156,13 @@ def shell(title, desc, body, canonical_slug):
   <div class="mobile-menu wrap"><ul>
     <li><a href="../services.html">Services</a></li>
     <li><a href="../families.html">Who We Serve</a></li>
+    <li class="mobile-submenu"><a href="../families.html">Families</a></li>
+    <li class="mobile-submenu"><a href="../professionals.html">Professionals</a></li>
+    <li class="mobile-submenu"><a href="../retirees.html">Retirees</a></li>
+    <li class="mobile-submenu"><a href="../business-owners.html">Business Owners</a></li>
+    <li class="mobile-submenu"><a href="../foundations-endowments.html">Foundations &amp; Endowments</a></li>
+    <li class="mobile-submenu"><a href="../professionals.html">Executives</a></li>
+    <li class="mobile-submenu"><a href="../institutional.html">Institutions</a></li>
     <li><a href="../approach.html">How We Invest</a></li>
     <li><a href="../team.html">Team</a></li>
     <li><a href="../fees.html">Fees</a></li>
@@ -236,7 +253,17 @@ index = f"""<!DOCTYPE html>
     <a class="brand" href="home.html">Princeton <span>Asset Management</span></a>
     <nav aria-label="Primary"><ul class="nav-links">
       <li><a href="services.html">Services</a></li>
-      <li><a href="families.html">Who We Serve</a></li>
+      <li class="has-dropdown"><a href="families.html">Who We Serve</a>
+        <ul class="nav-dropdown">
+          <li><a href="families.html">Families</a></li>
+          <li><a href="professionals.html">Professionals</a></li>
+          <li><a href="retirees.html">Retirees</a></li>
+          <li><a href="business-owners.html">Business Owners</a></li>
+          <li><a href="foundations-endowments.html">Foundations &amp; Endowments</a></li>
+          <li><a href="professionals.html">Executives</a></li>
+          <li><a href="institutional.html">Institutions</a></li>
+        </ul>
+      </li>
       <li><a href="approach.html">How We Invest</a></li>
       <li><a href="team.html">Team</a></li>
       <li><a href="fees.html">Fees</a></li>
@@ -251,6 +278,13 @@ index = f"""<!DOCTYPE html>
   <div class="mobile-menu wrap"><ul>
     <li><a href="services.html">Services</a></li>
     <li><a href="families.html">Who We Serve</a></li>
+    <li class="mobile-submenu"><a href="families.html">Families</a></li>
+    <li class="mobile-submenu"><a href="professionals.html">Professionals</a></li>
+    <li class="mobile-submenu"><a href="retirees.html">Retirees</a></li>
+    <li class="mobile-submenu"><a href="business-owners.html">Business Owners</a></li>
+    <li class="mobile-submenu"><a href="foundations-endowments.html">Foundations &amp; Endowments</a></li>
+    <li class="mobile-submenu"><a href="professionals.html">Executives</a></li>
+    <li class="mobile-submenu"><a href="institutional.html">Institutions</a></li>
     <li><a href="approach.html">How We Invest</a></li>
     <li><a href="team.html">Team</a></li>
     <li><a href="fees.html">Fees</a></li>

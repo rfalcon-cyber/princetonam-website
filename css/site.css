@@ -170,6 +170,56 @@ p  { max-width: 68ch; }
   }
   .nav-links a:hover { color: var(--ink); }
   .nav-links a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--brass); }
+  .nav-links li.has-dropdown { position: relative; }
+  .nav-links li.has-dropdown > a::after {
+    content: "";
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    margin-left: 6px;
+    margin-bottom: 2px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg);
+  }
+  .nav-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    min-width: 230px;
+    margin: 0;
+    padding: 8px;
+    list-style: none;
+    background: var(--paper-raise);
+    border: 1px solid var(--line-soft);
+    border-radius: 10px;
+    box-shadow: 0 18px 40px rgba(20, 24, 29, 0.14);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+    z-index: 110;
+  }
+  .nav-links li.has-dropdown:hover > .nav-dropdown,
+  .nav-links li.has-dropdown:focus-within > .nav-dropdown {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+  .nav-dropdown li { width: 100%; }
+  .nav-dropdown a {
+    display: block;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    border-bottom: none;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .nav-dropdown a:hover { color: var(--ink); background: var(--paper); }
   .nav-cta { display: flex; align-items: center; gap: 20px; }
   .login-link {
     font-size: 0.82rem;
@@ -220,6 +270,11 @@ p  { max-width: 68ch; }
   border-bottom: 1px solid var(--line-soft);
 }
 .mobile-menu .login-link { color: var(--ink-muted); font-size: 0.9rem; }
+.mobile-menu .mobile-submenu a {
+  padding-left: 24px;
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+}
 
 /* ---------- Hero ---------- */
 .hero {

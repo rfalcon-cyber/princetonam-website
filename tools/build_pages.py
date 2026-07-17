@@ -11,11 +11,34 @@ NAV = [("services.html", "Services"), ("families.html", "Who We Serve"),
        ("approach.html", "How We Invest"), ("team.html", "Team"),
        ("fees.html", "Fees"), ("insights.html", "Insights")]
 
+WHO_WE_SERVE_SUBITEMS = [
+    ("families.html", "Families"),
+    ("professionals.html", "Professionals"),
+    ("retirees.html", "Retirees"),
+    ("business-owners.html", "Business Owners"),
+    ("foundations-endowments.html", "Foundations &amp; Endowments"),
+    ("professionals.html", "Executives"),
+    ("institutional.html", "Institutions"),
+]
+
 def shell(fname, title, desc, main):
-    links = "\n".join(
-        f'      <li><a href="{h}"{" aria-current=\"page\"" if h == fname else ""}>{t}</a></li>'
-        for h, t in NAV)
-    mlinks = "\n".join(f'    <li><a href="{h}">{t}</a></li>' for h, t in NAV)
+    def nav_item(h, t):
+        current = ' aria-current="page"' if h == fname else ""
+        if h == "families.html" and t == "Who We Serve":
+            sub = "\n".join(f'          <li><a href="{sh}">{st}</a></li>' for sh, st in WHO_WE_SERVE_SUBITEMS)
+            return (f'      <li class="has-dropdown"><a href="{h}"{current}>{t}</a>\n'
+                    f'        <ul class="nav-dropdown">\n{sub}\n        </ul>\n'
+                    f'      </li>')
+        return f'      <li><a href="{h}"{current}>{t}</a></li>'
+
+    def mnav_item(h, t):
+        if h == "families.html" and t == "Who We Serve":
+            sub = "\n".join(f'    <li class="mobile-submenu"><a href="{sh}">{st}</a></li>' for sh, st in WHO_WE_SERVE_SUBITEMS)
+            return f'    <li><a href="{h}">{t}</a></li>\n{sub}'
+        return f'    <li><a href="{h}">{t}</a></li>'
+
+    links = "\n".join(nav_item(h, t) for h, t in NAV)
+    mlinks = "\n".join(mnav_item(h, t) for h, t in NAV)
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
