@@ -138,7 +138,7 @@ def shell(title, desc, body, canonical_slug):
       <li><a href="../insights.html" aria-current="page">Insights</a></li>
     </ul></nav>
     <div class="nav-cta">
-      <a class="login-link" href="https://login.fidelity.com" rel="noopener">Client Login</a>
+      <a class="login-link" href="../login.html" rel="noopener">Client Login</a>
       <a class="btn" href="../schedule.html">Schedule a Call</a>
     </div>
     <button class="nav-toggle" aria-expanded="false" aria-label="Open menu"><span></span><span></span><span></span></button>
@@ -243,7 +243,7 @@ index = f"""<!DOCTYPE html>
       <li><a href="insights.html" aria-current="page">Insights</a></li>
     </ul></nav>
     <div class="nav-cta">
-      <a class="login-link" href="https://login.fidelity.com" rel="noopener">Client Login</a>
+      <a class="login-link" href="login.html" rel="noopener">Client Login</a>
       <a class="btn" href="schedule.html">Schedule a Call</a>
     </div>
     <button class="nav-toggle" aria-expanded="false" aria-label="Open menu"><span></span><span></span><span></span></button>

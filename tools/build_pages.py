@@ -37,7 +37,7 @@ def shell(fname, title, desc, main):
 {links}
     </ul></nav>
     <div class="nav-cta">
-      <a class="login-link" href="https://login.fidelity.com" rel="noopener">Client Login</a>
+      <a class="login-link" href="login.html" rel="noopener">Client Login</a>
       <a class="btn" href="schedule.html">Schedule a Call</a>
     </div>
     <button class="nav-toggle" aria-expanded="false" aria-label="Open menu"><span></span><span></span><span></span></button>
@@ -45,7 +45,7 @@ def shell(fname, title, desc, main):
   <div class="mobile-menu wrap"><ul>
 {mlinks}
     <li><a href="schedule.html">Schedule a Call</a></li>
-    <li><a class="login-link" href="https://login.fidelity.com" rel="noopener">Client Login</a></li>
+    <li><a class="login-link" href="login.html" rel="noopener">Client Login</a></li>
   </ul></div>
 </header>
 <main id="main">
@@ -73,7 +73,7 @@ def shell(fname, title, desc, main):
         <ul>
           <li><a href="insights.html">Insights</a></li>
           <li><a href="schedule.html">Schedule a Call</a></li>
-          <li><a href="https://login.fidelity.com" rel="noopener">Client Login</a></li>
+          <li><a href="login.html" rel="noopener">Client Login</a></li>
         </ul>
       </div>
       <div>
@@ -255,7 +255,7 @@ PAGES["families.html"] = ("Who We Serve", "Princeton Asset Management serves bus
   <section>
     <div class="wrap">
       <div class="img-frame wide reveal">
-        <img src="assets/img/family-dinner.jpg" alt="Three generations of a family at dinner together" loading="eager">
+        <img src="assets/img/passingItOn.png" alt="Three generations of a family at dinner together — passing it on" loading="eager">
       </div>
       <p class="img-caption">Three generations, one balance sheet — the situation we're built for.</p>
     </div>
@@ -483,7 +483,7 @@ PAGES["approach.html"] = ("How We Invest", "Capital preservation first. Fixed in
         <span class="label">1 — Every Asset Class</span>
         <h2>In-house where we're specialists. Vetted partners where we're not.</h2>
         <div class="img-frame mt-4">
-          <img src="assets/img/ocean-walk.jpg" alt="A couple walking the shoreline toward the horizon" loading="eager">
+          <img src="assets/img/blog-tax-planning.jpg" alt="A couple reviewing their financial plan together" loading="eager">
         </div>
       </div>
       <div class="reveal">

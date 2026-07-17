@@ -7,3 +7,6 @@ build/
 *.log
 .cache/
 .netlify/
+assets/img/OLD/
+assets/img/Vecteezy-License-Information.pdf
+desktop.ini

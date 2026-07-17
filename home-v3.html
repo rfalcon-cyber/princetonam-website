@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Princeton Asset Management — Independent Fiduciary Wealth Management</title>
+<meta name="description" content="Independent, fee-only fiduciary founded in 2008. Interactive homepage prototype (v3).">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/framer-motion@11.11.17/dist/framer-motion.js"></script>
+<script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://unpkg.com/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script>window.Motion = window.Motion || window.FramerMotion;</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        body: ["'Inter'", "sans-serif"],
+        display: ["'Instrument Serif'", "serif"],
+      },
+      colors: {
+        bg: "hsl(var(--bg))",
+        surface: "hsl(var(--surface))",
+        "text-primary": "hsl(var(--text))",
+        muted: "hsl(var(--muted))",
+        stroke: "hsl(var(--stroke))",
+      },
+    },
+  },
+};
+</script>
+
+<style>
+  :root {
+    --bg: 0 0% 4%;
+    --surface: 0 0% 8%;
+    --text: 0 0% 96%;
+    --muted: 0 0% 53%;
+    --stroke: 0 0% 12%;
+    --accent: 0 0% 96%;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: hsl(var(--bg)); color: hsl(var(--text)); font-family: 'Inter', sans-serif; }
+
+  .accent-gradient { background: linear-gradient(90deg, #C9A961 0%, #A98E4A 100%); }
+  .accent-gradient-rev { background: linear-gradient(90deg, #A98E4A 0%, #C9A961 100%); }
+
+  @keyframes scroll-down {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(200%); }
+  }
+  .animate-scroll-down { animation: scroll-down 1.5s ease-in-out infinite; }
+
+  @keyframes role-fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-role-fade-in { animation: role-fade-in 0.4s ease-out; }
+
+  @keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .animate-gradient-border {
+    background: linear-gradient(90deg, #C9A961, #A98E4A, #C9A961);
+    background-size: 200% 200%;
+    animation: gradient-shift 6s ease infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .animate-pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+  .halftone {
+    background-image: radial-gradient(circle, #000 1px, transparent 1px);
+    background-size: 4px 4px;
+  }
+</style>
+</head>
+<body class="bg-bg text-text-primary antialiased">
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+/* Suppress benign Framer Motion dev list-key warnings */
+(() => {
+  const origError = console.error;
+  console.error = (...args) => {
+    if (typeof args[0] === "string" && args[0].includes("unique \"key\" prop")) return;
+    origError(...args);
+  };
+})();
+
+const { motion, AnimatePresence } = window.Motion;
+gsap.registerPlugin(ScrollTrigger);
+
+const BOOKING = "https://bookings.cloud.microsoft/bookwithme/user/be95592b056745bc87a11d047f04a96c%40princetonam.com?anonymous&ismsaljsauthenabled";
+
+/* ============ Loading Screen: "Our Value" — three words fly in, fast ============ */
+function LoadingScreen({ onComplete }) {
+  const words = ["Preserve", "Position", "Prosper"];
+
+  React.useEffect(() => {
+    const t = setTimeout(onComplete, 1600);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[9999] bg-bg flex flex-col items-center justify-center overflow-hidden"
+      exit={{ opacity: 0, y: -60, transition: { duration: 0.5, ease: "easeInOut" } }}>
+      <div className="absolute inset-0 pointer-events-none"
+           style={{ background: "radial-gradient(ellipse 65% 45% at 50% 55%, rgba(169,142,74,0.18), transparent 70%)" }} />
+      <motion.p
+        initial={{ opacity: 0, letterSpacing: "0.15em" }}
+        animate={{ opacity: 1, letterSpacing: "0.45em" }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="relative text-xs text-muted uppercase mb-8 font-body">
+        Our Value
+      </motion.p>
+      <div className="relative flex flex-wrap items-baseline justify-center gap-x-6 gap-y-2 px-6">
+        {words.map((w, i) => (
+          <motion.span key={w}
+            initial={{ opacity: 0, y: 90, scale: 1.5, filter: "blur(14px)", rotate: i % 2 ? 3 : -3 }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)", rotate: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 + i * 0.15, ease: [0.22, 1, 0.36, 1] }}
+            className="text-5xl md:text-7xl lg:text-8xl font-display italic text-text-primary">
+            {w}<span className="text-muted">.</span>
+          </motion.span>
+        ))}
+      </div>
+      <motion.div
+        initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+        transition={{ duration: 1.1, delay: 0.3, ease: "easeInOut" }}
+        className="relative mt-10 h-px w-44 accent-gradient origin-left" />
+    </motion.div>
+  );
+}
+
+/* ============ ParticleField: generative gold constellation on navy ============ */
+function ParticleField({ className, density = 1, interactive = true }) {
+  const canvasRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let w = 0, h = 0, raf = null, pts = [];
+    const mouse = { x: -9999, y: -9999 };
+    const LINK = 110;
+
+    const build = () => {
+      w = canvas.offsetWidth; h = canvas.offsetHeight;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const n = Math.max(40, Math.round(((w * h) / 16000) * density));
+      pts = Array.from({ length: n }, () => ({
+        x: Math.random() * w, y: Math.random() * h,
+        vx: 0, vy: 0, r: 0.6 + Math.random() * 1.6,
+        twp: Math.random() * Math.PI * 2,        // twinkle phase
+        tws: 0.5 + Math.random() * 1.8,          // twinkle speed
+      }));
+    };
+    build();
+
+    let t = 0;
+    const step = () => {
+      t += 0.004;
+      const g = ctx.createLinearGradient(0, 0, 0, h);
+      g.addColorStop(0, "#0a0a0a");
+      g.addColorStop(0.55, "#0e1524");
+      g.addColorStop(1, "#0a0a0a");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+
+      for (const p of pts) {
+        const a = (Math.sin(p.x * 0.002 + t) + Math.cos(p.y * 0.0023 - t * 0.8)) * Math.PI;
+        p.vx += Math.cos(a) * 0.012;
+        p.vy += Math.sin(a) * 0.012;
+        if (interactive) {
+          const dx = p.x - mouse.x, dy = p.y - mouse.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < 150 * 150 && d2 > 1) {
+            const f = 0.6 / Math.sqrt(d2);
+            p.vx += dx * f * 0.06;
+            p.vy += dy * f * 0.06;
+          }
+        }
+        p.vx *= 0.96; p.vy *= 0.96;
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < -20) p.x = w + 20; if (p.x > w + 20) p.x = -20;
+        if (p.y < -20) p.y = h + 20; if (p.y > h + 20) p.y = -20;
+      }
+
+      ctx.lineWidth = 1;
+      for (let i = 0; i < pts.length; i++) {
+        for (let j = i + 1; j < pts.length; j++) {
+          const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < LINK * LINK) {
+            const alpha = 0.10 * (1 - Math.sqrt(d2) / LINK);
+            ctx.strokeStyle = `rgba(201,169,97,${alpha})`;
+            ctx.beginPath();
+            ctx.moveTo(pts[i].x, pts[i].y);
+            ctx.lineTo(pts[j].x, pts[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      for (const p of pts) {
+        // twinkle: dots pulse and shift from gold toward white light at their peak
+        const tw = 0.5 + 0.5 * Math.sin(t * 14 * p.tws + p.twp);
+        const k = tw * tw;
+        const cr = Math.round(201 + 54 * k);
+        const cg = Math.round(169 + 86 * k);
+        const cb = Math.round(97 + 158 * k);
+        const alpha = 0.16 + 0.5 * tw + p.r * 0.12;
+        const rad = p.r * (0.8 + 0.4 * tw);
+        if (k > 0.75 && p.r > 1.4) {
+          // bright flash gets a soft white halo
+          ctx.fillStyle = `rgba(255,255,255,${0.12 * k})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, rad * 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.fillStyle = `rgba(${cr},${cg},${cb},${alpha})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, rad, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+
+    const onMove = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+    };
+    const onLeave = () => { mouse.x = -9999; mouse.y = -9999; };
+    const onResize = () => build();
+    if (interactive) {
+      window.addEventListener("mousemove", onMove, { passive: true });
+      window.addEventListener("mouseout", onLeave, { passive: true });
+    }
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseout", onLeave);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [density, interactive]);
+
+  return <canvas ref={canvasRef} className={className} aria-hidden="true" />;
+}
+
+/* ============ Gradient-border hover button ============ */
+function GradientButton({ href, children, solid, className = "", external }) {
+  return (
+    <a href={href} {...(external ? { target: "_blank", rel: "noopener" } : {})}
+       className={"group relative inline-flex items-center justify-center rounded-full text-sm px-7 py-3.5 font-body font-medium transition-transform duration-300 hover:scale-105 " + className}>
+      <span className="absolute rounded-full animate-gradient-border opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ inset: "-2px" }} />
+      <span className={"relative inline-flex items-center gap-2 rounded-full px-7 py-3.5 -mx-7 -my-3.5 transition-colors duration-300 " +
+        (solid
+          ? "bg-text-primary text-bg group-hover:bg-bg group-hover:text-text-primary"
+          : "border-2 border-stroke bg-bg text-text-primary group-hover:border-transparent")}>
+        {children}
+      </span>
+    </a>
+  );
+}
+
+/* ============ Navbar: left rail (collapsed icons → expands with labels) ============
+   All navigation lives in one vertical rail on the left, modeled on the reference
+   sidebar. It expands on hover (or pin it open with the chevron); the section in
+   view gets the solid white pill, and hovering any item lightens it. */
+function NavIcon({ name }) {
+  const paths = {
+    home: <React.Fragment><path d="M3.5 10.5 12 3.5l8.5 7" /><path d="M5.5 9.5V20.5h13V9.5" /></React.Fragment>,
+    grid: <React.Fragment><rect x="3.5" y="3.5" width="7" height="7" rx="1.5" /><rect x="13.5" y="3.5" width="7" height="7" rx="1.5" /><rect x="3.5" y="13.5" width="7" height="7" rx="1.5" /><rect x="13.5" y="13.5" width="7" height="7" rx="1.5" /></React.Fragment>,
+    users: <React.Fragment><circle cx="9" cy="8" r="3.2" /><path d="M3.5 19.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5" /><path d="M15.3 5.4a3.2 3.2 0 0 1 0 5.2" /><path d="M16.6 14.9c2.2.5 3.9 2.3 3.9 4.6" /></React.Fragment>,
+    book: <React.Fragment><path d="M12 6.5C10.5 5 8.5 4.5 4 4.5v13c4.5 0 6.5.5 8 2 1.5-1.5 3.5-2 8-2v-13c-4.5 0-6.5.5-8 2z" /><path d="M12 6.5v13" /></React.Fragment>,
+    user: <React.Fragment><circle cx="12" cy="8" r="3.5" /><path d="M5.5 20.5c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6" /></React.Fragment>,
+    fees: <React.Fragment><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5v9M14.6 9.4c-.5-1.7-5.2-1.5-5.2.5 0 2.4 5.2 1.4 5.2 3.9 0 2.1-4.7 2.3-5.2.5" /></React.Fragment>,
+    lock: <React.Fragment><rect x="5" y="10.5" width="14" height="9.5" rx="2" /><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" /></React.Fragment>,
+    calendar: <React.Fragment><rect x="3.5" y="5" width="17" height="15.5" rx="2" /><path d="M3.5 9.5h17M8 3v4M16 3v4" /></React.Fragment>,
+  };
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor"
+         strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {paths[name]}
+    </svg>
+  );
+}
+
+function Navbar() {
+  const [pinned, setPinned] = React.useState(false);
+  const [hovered, setHovered] = React.useState(false);
+  const [active, setActive] = React.useState("home");
+  const [isDesktop, setIsDesktop] = React.useState(() => window.matchMedia("(min-width: 768px)").matches);
+  const open = isDesktop && (pinned || hovered);
+
+  React.useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const onChange = () => setIsDesktop(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  React.useEffect(() => {
+    const ids = ["home", "capabilities", "serve", "insights"];
+    const onScroll = () => {
+      let cur = "home";
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= window.innerHeight * 0.4) cur = id;
+      }
+      setActive(cur);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const items = [
+    { id: "home", label: "Home", href: "#home", icon: "home" },
+    { id: "capabilities", label: "Services", href: "#capabilities", icon: "grid" },
+    { id: "serve", label: "Who We Serve", href: "#serve", icon: "users" },
+    { id: "insights", label: "Insights", href: "#insights", icon: "book" },
+    { divider: true },
+    { id: "team", label: "Team", href: "team.html", icon: "user" },
+    { id: "fees", label: "Fees", href: "fees.html", icon: "fees" },
+    { id: "login", label: "Client Login", href: "login.html", icon: "lock" },
+    { id: "call", label: "Schedule a Call", href: BOOKING, icon: "calendar", external: true, gold: true },
+  ];
+
+  return (
+    <nav aria-label="Primary" className="fixed z-[60] bottom-2 left-1/2 -translate-x-1/2 md:bottom-auto md:left-4 md:top-1/2 md:translate-x-0 md:-translate-y-1/2">
+      <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        className="flex flex-row items-center md:flex-col md:items-stretch rounded-full md:rounded-[24px] border border-white/10 bg-surface/90 backdrop-blur-xl shadow-2xl shadow-black/60 overflow-hidden transition-[width] duration-300 ease-out px-2 py-1.5 md:px-0 md:py-2.5"
+        style={isDesktop ? { width: open ? "224px" : "60px" } : undefined}>
+
+        {/* logo + collapse chevron */}
+        <div className="flex items-center justify-between pr-1 md:pl-[10px] md:pr-3 md:pb-1.5">
+          <a href="index.html" aria-label="Princeton Asset Management home"
+             className="shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full p-[2px] accent-gradient transition-transform duration-300 hover:scale-110">
+            <span className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+              <img src="logo/pam-mark.png" alt="" className="w-[24px] h-auto" />
+            </span>
+          </a>
+          <button onClick={() => setPinned((p) => !p)}
+                  aria-label={pinned ? "Collapse menu" : "Pin menu open"}
+                  className={"shrink-0 w-7 h-7 rounded-full hidden md:flex items-center justify-center text-muted hover:text-white hover:bg-white/10 transition-all duration-300 " +
+                    (open ? "opacity-100" : "opacity-0 pointer-events-none")}>
+            <svg viewBox="0 0 24 24" className={"w-4 h-4 transition-transform duration-300 " + (pinned ? "rotate-180" : "")}
+                 fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M14.5 6 9 12l5.5 6" />
+            </svg>
+          </button>
+        </div>
+
+        {items.map((it, idx) =>
+          it.divider ? (
+            <div key={"div" + idx} className="w-px self-stretch mx-1 my-1 md:w-auto md:h-px md:mx-3 md:my-1.5 bg-white/10" />
+          ) : (
+            <a key={it.id} href={it.href}
+               {...(it.external ? { target: "_blank", rel: "noopener" } : {})}
+               title={open ? undefined : it.label}
+               onClick={() => { if (it.href[0] === "#") setActive(it.id); }}
+               className={"group flex items-center md:gap-3 mx-[1px] my-0 rounded-xl p-[4px] md:mx-2 md:my-[3px] md:pl-[6px] md:pr-2 md:py-[7px] font-body text-sm whitespace-nowrap transition-colors duration-200 " +
+                 (active === it.id
+                   ? "bg-white text-black shadow-lg shadow-black/40"
+                   : it.gold
+                     ? "text-[#C9A961] hover:text-[#E8CE8C] hover:bg-[#C9A961]/10"
+                     : "text-white/55 hover:text-white hover:bg-white/10")}>
+              <span className="shrink-0 w-6 h-6 md:w-8 md:h-8 flex items-center justify-center">
+                <NavIcon name={it.icon} />
+              </span>
+              <span className={"hidden md:block transition-opacity duration-200 " + (open ? "opacity-100" : "opacity-0")}>
+                {it.label}
+              </span>
+            </a>
+          )
+        )}
+      </div>
+    </nav>
+  );
+}
+
+/* ============ Bird → Branch → Logo (hero signature animation) ============ */
+function BirdPerch({ ready, heroRef }) {
+  const birdRef = React.useRef(null);
+  const wingFarRef = React.useRef(null);
+  const wingNearRef = React.useRef(null);
+  const logoRef = React.useRef(null);
+  const branchRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!ready) return;
+    const bird = birdRef.current, logo = logoRef.current, hero = heroRef.current;
+    const branchPaths = branchRef.current.querySelectorAll(".branch-draw");
+    const leaves = branchRef.current.querySelectorAll(".branch-leaf");
+    const wings = [wingFarRef.current, wingNearRef.current];
+
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) {
+      gsap.set(logo, { opacity: 1 });
+      gsap.set(branchPaths, { strokeDashoffset: 0 });
+      gsap.set(leaves, { opacity: 1, scale: 1 });
+      return;
+    }
+
+    let ctx = null;
+    let cancelled = false;
+
+    // if a real falcon photo exists, glide with it; otherwise use the SVG silhouette
+    const probe = new Image();
+    const start = (usePhoto) => {
+      if (cancelled) return;
+      ctx = gsap.context(() => {
+        const photoEl = bird.querySelector(".bird-photo");
+        const svgEl = bird.querySelector(".bird-svg");
+        gsap.set(usePhoto ? photoEl : svgEl, { autoAlpha: 1 });
+        gsap.set(usePhoto ? svgEl : photoEl, { autoAlpha: 0 });
+
+        const heroRect = hero.getBoundingClientRect();
+        const logoRect = logo.getBoundingClientRect();
+        const W = heroRect.width, H = heroRect.height;
+        // target = center of the logo perch
+        const tx = logoRect.left - heroRect.left + logoRect.width / 2;
+        const ty = logoRect.top - heroRect.top + logoRect.height / 2;
+
+        branchPaths.forEach((p) => {
+          const L = p.getTotalLength();
+          gsap.set(p, { strokeDasharray: L, strokeDashoffset: L });
+        });
+        gsap.set(leaves, { opacity: 0, scale: 0, transformOrigin: "0% 100%" });
+        gsap.set(logo, { opacity: 0 });
+        // bird positions are CENTER coords (xPercent/yPercent -50); enters from the RIGHT
+        gsap.set(bird, { xPercent: -50, yPercent: -50, opacity: 0, x: W * 1.10, y: H * 0.18, scale: 0.55, rotate: -3 });
+
+        // slow, stately wing beat (SVG only — the photo glides with wings fixed)
+        const flap = usePhoto ? null : gsap.to(wings, {
+          rotate: (i) => (i === 0 ? 14 : -14),
+          duration: 0.4, repeat: -1, yoyo: true, ease: "sine.inOut",
+        });
+        // photo: real wing beats — the two halves fold in 3D around the body line
+        let ride = null;
+        let wTop = null, wBot = null;
+        if (usePhoto) {
+          wTop = bird.querySelector(".bird-wing-top");
+          wBot = bird.querySelector(".bird-wing-bot");
+          ride = gsap.timeline({ repeat: -1, yoyo: true })
+            .to(wTop, { rotationX: -38, duration: 0.4, ease: "sine.inOut" }, 0)
+            .to(wBot, { rotationX: 30, duration: 0.4, ease: "sine.inOut" }, 0)
+            .to(photoEl, { y: -8, duration: 0.4, ease: "sine.inOut" }, 0);
+        }
+
+        // gold/white spark burst at the perch when the falcon becomes the mark
+        const burst = () => {
+          const overlay = bird.parentElement;
+          for (let i = 0; i < 18; i++) {
+            const sp = document.createElement("span");
+            const gold = i % 3 !== 0;
+            sp.style.cssText =
+              "position:absolute;left:" + tx + "px;top:" + ty + "px;width:" + (gold ? 4 : 3) +
+              "px;height:" + (gold ? 4 : 3) + "px;border-radius:9999px;background:" +
+              (gold ? "#C9A961" : "#FFFFFF") + ";pointer-events:none;";
+            overlay.appendChild(sp);
+            const a = Math.random() * Math.PI * 2;
+            const d = 40 + Math.random() * 80;
+            gsap.fromTo(sp, { x: 0, y: 0, opacity: 1, scale: 1 },
+              { x: Math.cos(a) * d, y: Math.sin(a) * d - 20, opacity: 0, scale: 0.2,
+                duration: 0.7 + Math.random() * 0.4, ease: "power2.out", onComplete: () => sp.remove() });
+          }
+        };
+
+        const tl = gsap.timeline();
+        // branch grows in while the falcon is on approach
+        tl.to(branchPaths, { strokeDashoffset: 0, duration: 1.2, ease: "power2.inOut", stagger: 0.12 }, 0.3);
+        tl.to(leaves, { opacity: 1, scale: 1, duration: 0.35, stagger: 0.07, ease: "back.out(2.5)" }, 1.1);
+
+        // PHASE A — slow, proud glide in from the right, arriving directly ABOVE the branch
+        tl.to(bird, { opacity: 1, duration: 0.4 }, 0.1);
+        tl.to(bird, {
+          keyframes: [
+            { x: W * 0.72, y: H * 0.12, scale: 0.95, rotate: -4, duration: 1.6 },
+            { x: tx, y: ty - H * 0.26, scale: 1.22, rotate: 0, duration: 1.5 },
+          ],
+          ease: "sine.inOut",
+        }, 0.1);
+        // PHASE B — hovers a beat, then descends STRAIGHT DOWN onto the branch,
+        // wings still beating to brake the fall
+        tl.to(bird, { y: ty - 6, scale: 0.66, rotate: 0, duration: 1.0, ease: "power1.inOut" });
+        tl.add(() => {
+          if (flap) {
+            flap.kill();
+            gsap.to(wings, { rotate: 0, duration: 0.25, ease: "power2.out" });
+          }
+          if (ride) {
+            ride.kill();
+            gsap.to([wTop, wBot], { rotationX: 0, duration: 0.3, ease: "power2.out" });
+            gsap.to(photoEl, { y: 0, duration: 0.3, ease: "power2.out" });
+          }
+        }, "-=0.2");
+        // touchdown
+        tl.to(bird, { y: ty + 5, rotate: 0, duration: 0.16, ease: "power1.in" });
+        tl.to(bird, { y: ty, duration: 0.2, ease: "power1.out" });
+        // the falcon becomes the brand mark in a burst of light
+        tl.add(burst, "+=0.1");
+        tl.to(bird, { opacity: 0, scale: 0.42, duration: 0.32, ease: "power2.in" }, "<");
+        tl.fromTo(logo,
+          { opacity: 0, y: 10, scale: 0.7 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "back.out(1.8)" }, "<+0.1");
+      }, hero);
+    };
+    probe.onload = () => start(true);
+    probe.onerror = () => start(false);
+    probe.src = "assets/img/falcon-glide.png";
+
+    return () => { cancelled = true; if (ctx) ctx.revert(); };
+  }, [ready]);
+
+  return (
+    <React.Fragment>
+      {/* perch: branch + logo, sits above the headline */}
+      <div className="relative w-[240px] md:w-[280px] h-[92px] md:h-[104px] mb-3 md:mb-4 flex items-end justify-center">
+        <svg ref={branchRef} viewBox="0 0 280 44" className="absolute bottom-0 left-0 w-full" fill="none" aria-hidden="true">
+          <path className="branch-draw" d="M4 30 C 60 22, 120 26, 158 24 C 200 22, 244 26, 276 18"
+                stroke="url(#branchGold)" strokeWidth="3.5" strokeLinecap="round" />
+          <path className="branch-draw" d="M96 26.5 C 110 18, 122 14, 138 12"
+                stroke="url(#branchGold)" strokeWidth="2" strokeLinecap="round" />
+          <path className="branch-draw" d="M196 23.5 C 208 30, 216 34, 230 36"
+                stroke="url(#branchGold)" strokeWidth="2" strokeLinecap="round" />
+          <path className="branch-leaf" d="M138 12 q 10 -8 20 -4 q -8 9 -20 4 Z" fill="#C9A961" opacity="0.9" />
+          <path className="branch-leaf" d="M230 36 q 11 6 21 1 q -9 -9 -21 -1 Z" fill="#A98E4A" opacity="0.9" />
+          <path className="branch-leaf" d="M52 24.5 q -8 -9 -19 -7 q 7 10 19 7 Z" fill="#A98E4A" opacity="0.85" />
+          <defs>
+            <linearGradient id="branchGold" x1="0" y1="0" x2="280" y2="0" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#A98E4A" /><stop offset="0.5" stopColor="#C9A961" /><stop offset="1" stopColor="#A98E4A" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <img ref={logoRef} src="logo/pam-mark.png" alt="Princeton Asset Management eagle mark"
+             className="relative w-[92px] md:w-[106px] h-auto opacity-0"
+             style={{ marginBottom: "14px", filter: "drop-shadow(0 6px 18px rgba(0,0,0,0.55))" }} />
+      </div>
+
+      {/* flying falcon overlay — covers the whole hero */}
+      <div className="absolute inset-0 z-30 pointer-events-none" aria-hidden="true">
+        <div ref={birdRef} className="absolute opacity-0" style={{ width: "420px", display: "grid", filter: "blur(0px)" }}>
+          {/* real falcon photo — faces left, flies in from the RIGHT.
+              Split into two halves hinged along the body line: each half rotates in 3D
+              (rotationX) so the wings genuinely beat instead of the image squashing. */}
+          <div className="bird-photo w-full opacity-0 self-center relative"
+               style={{ gridArea: "1 / 1", perspective: "700px" }}>
+            {/* static gold halo — cheaper than animated drop-shadows */}
+            <div className="absolute pointer-events-none" aria-hidden="true"
+                 style={{ inset: "-12%",
+                          background: "radial-gradient(ellipse 50% 42% at 50% 48%, rgba(201,169,97,0.28), transparent 70%)" }} />
+            <img className="bird-wing-top w-full h-auto relative"
+                 src="assets/img/falcon-glide.png" alt=""
+                 style={{ clipPath: "inset(0 0 45% 0)", transformOrigin: "50% 54%", willChange: "transform" }} />
+            <img className="bird-wing-bot w-full h-auto absolute inset-0"
+                 src="assets/img/falcon-glide.png" alt=""
+                 style={{ clipPath: "inset(53% 0 0 0)", transformOrigin: "50% 54%", willChange: "transform" }} />
+          </div>
+          <svg viewBox="0 0 260 150" className="bird-svg w-full h-auto self-center" fill="none"
+               style={{ gridArea: "1 / 1", filter: "drop-shadow(0 10px 30px rgba(0,0,0,0.6))" }}>
+            <defs>
+              <linearGradient id="falconBody" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#2E3F6E" />
+                <stop offset="1" stopColor="#0A1026" />
+              </linearGradient>
+              <linearGradient id="falconWingL" x1="1" y1="0" x2="0" y2="0">
+                <stop offset="0" stopColor="#22335F" />
+                <stop offset="1" stopColor="#0A1026" />
+              </linearGradient>
+              <linearGradient id="falconWingR" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stopColor="#22335F" />
+                <stop offset="1" stopColor="#0A1026" />
+              </linearGradient>
+            </defs>
+            {/* left wing — long, narrow, swept falcon wing with pointed tip */}
+            <g ref={wingFarRef} style={{ transformOrigin: "142px 72px" }}>
+              <path d="M142 72
+                       C 125 58, 105 47, 88 45
+                       C 60 44, 32 58, 8 80
+                       L 12 82
+                       C 28 74, 42 70, 54 70
+                       L 50 76
+                       C 64 76, 76 74, 86 70
+                       L 84 76
+                       C 100 78, 116 78, 130 84
+                       C 137 80, 141 76, 142 72 Z"
+                    fill="url(#falconWingL)" stroke="rgba(235,222,190,0.22)" strokeWidth="1" strokeLinejoin="round" />
+            </g>
+            {/* right wing */}
+            <g ref={wingNearRef} style={{ transformOrigin: "158px 72px" }}>
+              <path d="M158 72
+                       C 175 58, 195 47, 212 45
+                       C 240 44, 268 58, 292 80
+                       L 288 82
+                       C 272 74, 258 70, 246 70
+                       L 250 76
+                       C 236 76, 224 74, 214 70
+                       L 216 76
+                       C 200 78, 184 78, 170 84
+                       C 163 80, 159 76, 158 72 Z"
+                    fill="url(#falconWingR)" stroke="rgba(235,222,190,0.22)" strokeWidth="1" strokeLinejoin="round" />
+            </g>
+            {/* wedge tail, slightly fanned */}
+            <path d="M141 118 L 135 152 C 140 148, 144 149, 150 155 C 156 149, 160 148, 165 152 L 159 118 Z"
+                  fill="url(#falconBody)" stroke="rgba(235,222,190,0.16)" strokeWidth="1" strokeLinejoin="round" />
+            {/* sleek fusiform body — small head, broad chest, taper to tail */}
+            <path d="M150 34
+                     C 156 34, 161 39, 161 46
+                     C 161 50, 159 54, 156 57
+                     C 164 66, 168 78, 167 92
+                     C 166 108, 160 120, 150 126
+                     C 140 120, 134 108, 133 92
+                     C 132 78, 136 66, 144 57
+                     C 141 54, 139 50, 139 46
+                     C 139 39, 144 34, 150 34 Z"
+                  fill="url(#falconBody)" stroke="rgba(235,222,190,0.26)" strokeWidth="1.1" />
+            {/* breast barring — faint, like a peregrine's */}
+            <path d="M141 80 Q 150 85 159 80 M139 92 Q 150 98 161 92 M141 104 Q 150 109 159 104"
+                  stroke="rgba(220,205,170,0.16)" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+            {/* hooked beak, catching the light */}
+            <path d="M147 44 L 150 50 L 153 44 Q 150 47 147 44 Z" fill="#C9A961" opacity="0.9" />
+          </svg>
+        </div>
+      </div>
+    </React.Fragment>
+  );
+}
+
+/* ============ Hero ============ */
+function Hero({ ready }) {
+  const roles = ["Families", "Business Owners", "Professionals", "Retirees", "Foundations & Endowments", "Institutions"];
+  const [roleIndex, setRoleIndex] = React.useState(0);
+  const rootRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const id = setInterval(() => setRoleIndex((i) => (i + 1) % roles.length), 2000);
+    return () => clearInterval(id);
+  }, []);
+
+  React.useEffect(() => {
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      tl.fromTo(".name-reveal", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1.2, delay: 0.1 });
+      tl.fromTo(".blur-in",
+        { opacity: 0, filter: "blur(10px)", y: 20 },
+        { opacity: 1, filter: "blur(0px)", y: 0, duration: 1, stagger: 0.1 }, 0.3);
+    }, rootRef);
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <section id="home" ref={rootRef} className="relative h-[88vh] md:h-[90vh] overflow-hidden">
+      <div className="absolute inset-0">
+        <ParticleField className="absolute inset-0 w-full h-full" />
+        {/* warm light spilling down from the ceiling */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          background:
+            "conic-gradient(from 180deg at 50% -12%, transparent 37%, rgba(255,214,140,0.34) 46%, rgba(255,234,185,0.52) 50%, rgba(255,214,140,0.34) 54%, transparent 63%), " +
+            "radial-gradient(ellipse 74% 60% at 50% -10%, rgba(244,208,128,0.68), rgba(214,178,102,0.30) 45%, transparent 78%)",
+        }} />
+        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-bg to-transparent" />
+      </div>
+
+      <div className="hero-content relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
+        <BirdPerch ready={ready} heroRef={rootRef} />
+        <p className="blur-in text-xs text-white/70 uppercase tracking-[0.3em] mb-6 font-body">
+          Est. 2008 — Independent Fiduciary
+        </p>
+        <h1 className="name-reveal text-5xl md:text-7xl lg:text-8xl font-display italic leading-[0.9] tracking-tight text-text-primary mb-6"
+            style={{ textShadow: "0 2px 30px rgba(0,0,0,0.5)" }}>
+          Princeton<br />Asset Management
+        </h1>
+        <p className="blur-in text-lg md:text-xl text-white/90 mb-4 font-body font-light">
+          Wealth, engineered for{" "}
+          <span key={roleIndex} className="font-display italic text-text-primary animate-role-fade-in inline-block">
+            {roles[roleIndex]}
+          </span>.
+        </p>
+        <p className="blur-in text-sm md:text-base text-white/70 max-w-md mb-12 font-body">
+          Institution-grade capability with boutique attention — fee-only, no products to sell,
+          and portfolios built to outlast market cycles.
+        </p>
+        <div className="blur-in inline-flex gap-4">
+          <GradientButton href={BOOKING} external solid>Schedule a Call</GradientButton>
+          <GradientButton href="approach.html">How We Invest…</GradientButton>
+        </div>
+      </div>
+
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 hidden md:flex flex-col items-center gap-3">
+        <span className="text-xs text-white/60 uppercase tracking-[0.2em] font-body">Scroll</span>
+        <span className="relative w-px h-10 bg-white/20 overflow-hidden">
+          <span className="absolute left-0 top-0 w-px h-4 bg-white animate-scroll-down" />
+        </span>
+      </div>
+    </section>
+  );
+}
+
+/* ============ Section header pattern ============ */
+function SectionHeader({ eyebrow, title, italicWord, subtext, button }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
+      viewport={{ once: true, margin: "-100px" }}
+      className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+      <div>
+        <div className="flex items-center gap-3 mb-4">
+          <span className="w-8 h-px bg-stroke" />
+          <span className="text-xs text-muted uppercase tracking-[0.3em] font-body">{eyebrow}</span>
+        </div>
+        <h2 className="text-4xl md:text-5xl lg:text-6xl font-body font-light tracking-tight">
+          {title} <span className="font-display italic">{italicWord}</span>
+        </h2>
+        <p className="text-muted mt-4 max-w-md font-body text-sm md:text-base">{subtext}</p>
+      </div>
+      {button}
+    </motion.div>
+  );
+}
+
+/* ============ Services (numbered carousel — 01 / 02 / 03 / 04) ============ */
+const services = [
+  { num: "01", title: "Investment Management", tag: "Active & Customized",
+    desc: "High-conviction, actively managed portfolios built for changing markets — customized to your objectives, never pulled from a model shelf.",
+    img: "assets/img/advisor-meeting.jpg", pos: "50% 18%", href: "services.html" },
+  { num: "02", title: "Retirement Planning", tag: "Income & Tax Strategy",
+    desc: "Income needs, tax efficiency, and capital preservation balanced across your full financial picture — engineered year by year.",
+    img: "assets/img/retirees-travel.jpg", pos: "50% 32%", href: "services.html" },
+  { num: "03", title: "Trust & Estate Investments", tag: "Fiduciary Stewardship",
+    desc: "Stewardship of trust assets and intergenerational wealth — invested to honor both the document and the family behind it.",
+    img: "assets/img/family-hug.jpg", pos: "50% 30%", href: "services.html" },
+  { num: "04", title: "Multi-Asset & Alternatives", tag: "Public & Private Markets",
+    desc: "Public equities, fixed income, and vetted private markets — with independent diligence and zero placement fees.",
+    img: "assets/img/executive-tower.jpg", pos: "50% 25%", href: "services.html" },
+];
+
+function Services() {
+  const [index, setIndex] = React.useState(0);
+  const [cw, setCw] = React.useState(0);
+  const [cursor, setCursor] = React.useState({ x: 0, y: 0, on: false });
+  const wrapRef = React.useRef(null);
+  const hoverRef = React.useRef(false);
+  const draggingRef = React.useRef(false);
+
+  React.useEffect(() => {
+    const measure = () => setCw(wrapRef.current ? wrapRef.current.offsetWidth : 0);
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  React.useEffect(() => {
+    const id = setInterval(() => {
+      if (!hoverRef.current) setIndex((i) => (i + 1) % services.length);
+    }, 5000);
+    return () => clearInterval(id);
+  }, []);
+
+  const prev = () => setIndex((i) => (i - 1 + services.length) % services.length);
+  const next = () => setIndex((i) => (i + 1) % services.length);
+
+  const isMd = cw >= 640;
+  const slideW = Math.round(cw * (isMd ? 0.76 : 0.88));
+  const gap = isMd ? 28 : 14;
+  const H = isMd ? 520 : 400;
+
+  // signed circular offset from the active slide: -1 (left peek), 0 (center), 1 (right peek), 2 (hidden)
+  const relOf = (i) => {
+    let r = (((i - index) % services.length) + services.length) % services.length;
+    if (r > 2) r -= services.length;
+    return r;
+  };
+
+  return (
+    <section id="capabilities" className="bg-bg pt-4 pb-12 md:pt-6 md:pb-16 overflow-hidden">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-24 xl:px-16">
+        <SectionHeader
+          eyebrow="What We Do"
+          title="Four" italicWord="disciplines"
+          subtext="One coordinated engagement — everything a serious portfolio needs, designed and executed under one roof."
+          button={
+            <GradientButton href="services.html" className="hidden md:inline-flex">
+              All services <span aria-hidden="true">→</span>
+            </GradientButton>
+          }
+        />
+      </div>
+
+      <div ref={wrapRef} className="relative w-full">
+        {/* slide viewport — hidden native cursor, circular drag cursor instead */}
+        <div className="relative overflow-hidden md:cursor-none" style={{ height: H + "px" }}
+             onMouseEnter={() => { hoverRef.current = true; setCursor((c) => ({ ...c, on: true })); }}
+             onMouseLeave={() => { hoverRef.current = false; setCursor((c) => ({ ...c, on: false })); }}
+             onMouseMove={(e) => {
+               const rect = wrapRef.current.getBoundingClientRect();
+               setCursor({ x: e.clientX - rect.left, y: e.clientY - rect.top, on: true });
+             }}>
+          {cw > 0 && (
+            <motion.div className="absolute inset-0"
+              drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.06}
+              onDragStart={() => { draggingRef.current = true; }}
+              onDragEnd={(e, info) => {
+                setTimeout(() => { draggingRef.current = false; }, 50);
+                if (info.offset.x < -70) next();
+                else if (info.offset.x > 70) prev();
+              }}>
+              {services.map((s, i) => {
+                const rel = relOf(i);
+                const active = rel === 0;
+                const hidden = Math.abs(rel) > 1;
+                const x = Math.round(cw / 2 - slideW / 2 + rel * (slideW + gap));
+                return (
+                  <motion.div key={s.num}
+                    initial={false}
+                    animate={{ x, scale: active ? 1 : 0.94, opacity: hidden ? 0 : active ? 1 : 0.5 }}
+                    transition={hidden ? { duration: 0 } : { type: "spring", stiffness: 160, damping: 25 }}
+                    style={{ width: slideW + "px" }}
+                    className="absolute top-0 h-full rounded-[28px] overflow-hidden border border-stroke bg-surface select-none">
+                    {/* click layer: inactive slides snap into focus; active slide navigates */}
+                    {active ? (
+                      <a href={s.href} draggable="false" aria-label={s.title}
+                         onClick={(e) => { if (draggingRef.current) e.preventDefault(); }}
+                         className="absolute inset-0 z-20" />
+                    ) : (
+                      <button onClick={() => { if (!draggingRef.current) setIndex(i); }}
+                              className="absolute inset-0 z-20" aria-label={"Show " + s.title} />
+                    )}
+
+                    <img src={s.img} alt={s.title} loading="lazy" draggable="false"
+                         className="absolute inset-0 w-full h-full object-cover"
+                         style={{ objectPosition: s.pos || "50% 50%" }} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/10" />
+
+                    {/* tag chip — top left */}
+                    <div className="absolute top-5 left-5 md:top-8 md:left-8 z-10">
+                      <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/30 backdrop-blur-md px-4 py-1.5 text-[11px] uppercase tracking-[0.2em] text-white/90 font-body">
+                        <span className="w-1.5 h-1.5 rounded-full accent-gradient" />
+                        {s.tag}
+                      </span>
+                    </div>
+
+                    {/* title block — bottom left, bold sans like the reference */}
+                    <div className="absolute bottom-0 left-0 right-0 z-10 p-6 md:p-10">
+                      <div className="flex items-center gap-2 mb-3" aria-hidden="true">
+                        {services.map((_, d) => (
+                          <span key={d}
+                            className={"rounded-full transition-all duration-300 " +
+                              (d === i ? "w-2.5 h-2.5 accent-gradient" : "w-1.5 h-1.5 bg-white/40")} />
+                        ))}
+                      </div>
+                      <h3 className="text-3xl md:text-6xl font-body font-bold tracking-tight text-white leading-[1.05] mb-3 max-w-2xl">
+                        {s.title}
+                      </h3>
+                      <motion.div initial={false}
+                        animate={{ opacity: active ? 1 : 0, y: active ? 0 : 12 }}
+                        transition={{ duration: 0.45, delay: active ? 0.15 : 0 }}
+                        className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
+                        <p className="text-sm md:text-base text-white/75 font-body max-w-md">{s.desc}</p>
+                        <span className="inline-flex items-center gap-2 text-sm font-body text-white whitespace-nowrap">
+                          <span className="w-8 h-px accent-gradient" /> Explore <span aria-hidden="true">→</span>
+                        </span>
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          )}
+
+          {/* circular drag cursor */}
+          <motion.div
+            className="pointer-events-none absolute top-0 left-0 z-40 hidden md:flex items-center justify-center w-24 h-24 rounded-full border border-white/80 bg-black/10 backdrop-blur-[2px] text-[10px] tracking-[0.3em] uppercase text-white font-body"
+            initial={false}
+            animate={{ x: cursor.x - 48, y: cursor.y - 48, opacity: cursor.on ? 1 : 0, scale: cursor.on ? 1 : 0.4 }}
+            transition={{ x: { type: "spring", stiffness: 260, damping: 24, mass: 0.55 },
+                          y: { type: "spring", stiffness: 260, damping: 24, mass: 0.55 },
+                          opacity: { duration: 0.2 }, scale: { duration: 0.25 } }}>
+            Drag
+          </motion.div>
+        </div>
+
+        {/* controls */}
+        <div className="max-w-[1200px] mx-auto px-6 md:px-24 xl:px-16 mt-8 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            {services.map((s, i) => (
+              <button key={s.num} onClick={() => setIndex(i)} aria-label={"Show " + s.title}
+                className="relative w-6 h-6 flex items-center justify-center group">
+                <span className={"rounded-full transition-all duration-300 " +
+                  (i === index ? "w-2.5 h-2.5 accent-gradient" : "w-2 h-2 bg-stroke group-hover:bg-white/50")} />
+                {i === index && (
+                  <svg key={"ring" + index} viewBox="0 0 24 24" className="absolute inset-0 w-full h-full -rotate-90">
+                    <circle cx="12" cy="12" r="10" fill="none" stroke="hsl(var(--stroke))" strokeWidth="1.5" />
+                    <motion.circle cx="12" cy="12" r="10" fill="none" stroke="#C9A961" strokeWidth="1.5"
+                      strokeLinecap="round"
+                      initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+                      transition={{ duration: 5, ease: "linear" }} />
+                  </svg>
+                )}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={prev} aria-label="Previous service"
+              className="w-11 h-11 rounded-full border border-stroke text-muted hover:text-text-primary hover:border-white/30 transition-colors duration-300 flex items-center justify-center">
+              ←
+            </button>
+            <button onClick={next} aria-label="Next service"
+              className="w-11 h-11 rounded-full border border-stroke text-muted hover:text-text-primary hover:border-white/30 transition-colors duration-300 flex items-center justify-center">
+              →
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============ Insights (journal) ============ */
+const posts = [
+  { title: "Retiring with $3 Million: What Annual Spending Actually Looks Like", img: "assets/img/blog-porch-couple.jpg", read: "7 min read", date: "Jun 2026", href: "insights/retiring-with-3-million-annual-spending.html" },
+  { title: "Roth Conversions Above $1M: When They Backfire", img: "assets/img/blog-tax-planning.jpg", read: "6 min read", date: "May 2026", href: "insights/roth-conversions-above-1m-when-they-backfire.html" },
+  { title: "Concentrated Stock: 4 Exits Besides Selling", img: "assets/img/blog-market-screen.jpg", read: "8 min read", date: "May 2026", href: "insights/concentrated-stock-4-exits-besides-selling.html" },
+  { title: "Selling Your Business: Tax Moves Before the Sale", img: "assets/img/blog-workshop-owner.jpg", read: "9 min read", date: "Apr 2026", href: "insights/selling-your-business-tax-moves-before-sale.html" },
+];
+
+function Journal() {
+  return (
+    <section id="insights" className="bg-bg py-16 md:py-24">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-24 xl:px-16">
+        <SectionHeader
+          eyebrow="Journal"
+          title="Recent" italicWord="insights"
+          subtext="Research and plain-English analysis for investors with serious portfolios."
+          button={
+            <GradientButton href="insights.html" className="hidden md:inline-flex">
+              View all <span aria-hidden="true">→</span>
+            </GradientButton>
+          }
+        />
+        <div className="flex flex-col gap-4">
+          {posts.map((p, i) => (
+            <motion.a key={p.title} href={p.href}
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: i * 0.08, ease: "easeOut" }}
+              viewport={{ once: true, margin: "-50px" }}
+              className="group flex items-center gap-6 p-4 bg-surface/30 hover:bg-surface border border-stroke rounded-[40px] sm:rounded-full transition-colors duration-300">
+              <img src={p.img} alt="" loading="lazy"
+                   className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover shrink-0" />
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base md:text-lg font-body font-medium text-text-primary group-hover:text-white truncate md:whitespace-normal">
+                  {p.title}
+                </h3>
+                <p className="text-xs text-muted mt-1 font-body">{p.read}</p>
+              </div>
+              <div className="hidden sm:flex items-center gap-6 shrink-0 pr-4">
+                <span className="text-xs text-muted font-body">{p.date}</span>
+                <span className="text-muted group-hover:text-text-primary transition-colors" aria-hidden="true">↗</span>
+              </div>
+            </motion.a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============ Clients We Serve: 3D orbit carousel ============
+   Cards circle slowly on a 3D ring but always face the viewer, so every
+   name stays readable (the reference design loses labels on turned cards).
+   Hovering the stage pauses the orbit so cards can be clicked. */
+const galleryItems = [
+  { img: "assets/img/couple-home.jpg", label: "Families", pos: "50% 35%", href: "families.html" },
+  { img: "assets/img/physician.jpg", label: "Professionals", pos: "50% 25%", href: "professionals.html" },
+  { img: "assets/img/retirees-golf.jpg", label: "Retirees", pos: "50% 30%", href: "retirees.html" },
+  { img: "assets/img/blog-workshop-owner.jpg", label: "Business Owners", pos: "50% 25%", href: "business-owners.html" },
+  { img: "assets/img/Foundation.jpg", label: "Foundations & Endowments", pos: "50% 40%", href: "foundations-endowments.html" },
+  { img: "assets/img/Executive2.jpg", label: "Executives", pos: "50% 15%", href: "professionals.html" },
+  { img: "assets/img/institution.jpg", label: "Institutions", pos: "50% 30%", href: "institutional.html" },
+];
+
+function ClientOrbit() {
+  const stageRef = React.useRef(null);
+  const cardRefs = React.useRef([]);
+  const angleRef = React.useRef(0);
+  const speedRef = React.useRef(1);          // eases to 0 on hover, 1 when free
+  const N = galleryItems.length;
+
+  React.useEffect(() => {
+    const stage = stageRef.current;
+    let raf = null, last = performance.now();
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const REV_MS = 22000;                    // one revolution ~22s — unhurried but never a wait
+
+    const layout = () => {
+      const cw = stage.offsetWidth;
+      const cardW = cw < 640 ? 225 : 310;
+      const rx = Math.max(cardW * 0.85, Math.min(cw / 2 - cardW / 2 - 8, 500));
+      for (let i = 0; i < N; i++) {
+        const el = cardRefs.current[i];
+        if (!el) continue;
+        const a = angleRef.current + (i * Math.PI * 2) / N;
+        const depth = (Math.cos(a) + 1) / 2;               // 1 = front, 0 = back
+        const x = Math.sin(a) * rx;
+        const y = -46 * (1 - depth);                       // back row floats up a touch
+        const scale = 0.58 + 0.42 * depth;
+        el.style.width = cardW + "px";
+        el.style.transform =
+          "translate(-50%,-50%) translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) scale(" + scale.toFixed(3) + ")";
+        el.style.zIndex = String(10 + Math.round(depth * 100));
+        el.style.opacity = (0.38 + 0.62 * depth).toFixed(3);
+        el.style.filter = "brightness(" + (0.55 + 0.45 * depth).toFixed(3) + ")";
+      }
+    };
+
+    const step = (now) => {
+      const dt = Math.min(now - last, 100);
+      last = now;
+      angleRef.current += (dt / REV_MS) * Math.PI * 2 * speedRef.current;
+      layout();
+      raf = requestAnimationFrame(step);
+    };
+
+    layout();                                // paint the ring immediately, before the first frame
+    if (!reduce) raf = requestAnimationFrame(step);
+
+    const easeTo = (target) => {
+      const tick = () => {
+        const s = speedRef.current;
+        const next = s + (target - s) * 0.12;
+        speedRef.current = Math.abs(next - target) < 0.01 ? target : next;
+        if (speedRef.current !== target) requestAnimationFrame(tick);
+      };
+      tick();
+    };
+    const pause = () => easeTo(0);
+    const resume = () => easeTo(1);
+    stage.addEventListener("pointerenter", pause);
+    stage.addEventListener("pointerleave", resume);
+    window.addEventListener("resize", layout);
+
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      stage.removeEventListener("pointerenter", pause);
+      stage.removeEventListener("pointerleave", resume);
+      window.removeEventListener("resize", layout);
+    };
+  }, []);
+
+  return (
+    <section id="serve" className="relative bg-bg pt-8 md:pt-10 pb-16 md:pb-20 overflow-hidden">
+      {/* soft gold pool of light behind the ring */}
+      <div className="absolute inset-x-0 bottom-0 h-[60%] pointer-events-none"
+           style={{ background: "radial-gradient(ellipse 55% 50% at 50% 100%, rgba(169,142,74,0.14), transparent 70%)" }} />
+
+      <div className="relative max-w-[1200px] mx-auto px-6 md:px-24 xl:px-16">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
+          viewport={{ once: true, margin: "-100px" }}
+          className="text-center max-w-xl mx-auto">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <span className="w-8 h-px bg-stroke" />
+            <span className="text-xs text-muted uppercase tracking-[0.3em] font-body">Who We Serve</span>
+            <span className="w-8 h-px bg-stroke" />
+          </div>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-body font-light tracking-tight">
+            Clients we <span className="font-display italic">serve</span>
+          </h2>
+          <p className="text-muted mt-4 font-body text-sm md:text-base">
+            Families, business owners, professionals, retirees, foundations &amp; endowments,
+            and institutions — each with a portfolio built around what their wealth actually has to do.
+          </p>
+        </motion.div>
+      </div>
+
+      {/* orbit stage */}
+      <div ref={stageRef} className="relative w-full max-w-[1280px] mx-auto h-[520px] md:h-[620px] mt-4 md:mt-6">
+        {galleryItems.map((item, i) => (
+          <a key={item.label} href={item.href}
+             ref={(el) => { cardRefs.current[i] = el; }}
+             className="group absolute left-1/2 top-1/2 block rounded-3xl overflow-hidden border border-white/10 bg-surface shadow-2xl shadow-black/50 will-change-transform"
+             style={{ aspectRatio: "3 / 4" }}
+             aria-label={item.label}>
+            <img src={item.img} alt={item.label} loading="lazy" draggable="false"
+                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                 style={{ objectPosition: item.pos }} />
+            {/* solid readable name plate — always facing the viewer */}
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/55 to-transparent pt-12 pb-4 px-4">
+              <p className="text-white font-body font-semibold text-base md:text-lg leading-snug"
+                 style={{ textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>
+                {item.label}
+              </p>
+              <p className="text-[11px] uppercase tracking-[0.18em] font-body text-white/70 mt-1 inline-flex items-center gap-1.5">
+                <span className="w-4 h-px accent-gradient" /> Explore <span aria-hidden="true">→</span>
+              </p>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <div className="relative text-center mt-2 md:mt-4">
+        <p className="text-xs text-muted font-body mb-6 hidden md:block">Hover to pause — click a card to explore</p>
+        <div className="inline-flex">
+          <GradientButton href="families.html">Find your fit <span aria-hidden="true">→</span></GradientButton>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============ Stats ============ */
+const stats = [
+  { value: "2008", label: "Independent fiduciary since" },
+  { value: "100%", label: "Fee-only. No products, no commissions" },
+  { value: "GIPS®", label: "Firm-wide performance compliance" },
+];
+
+function Stats() {
+  return (
+    <section className="bg-bg py-16 md:py-24">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-24 xl:px-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-6">
+          {stats.map((s, i) => (
+            <motion.div key={s.label}
+              initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: i * 0.12, ease: [0.25, 0.1, 0.25, 1] }}
+              viewport={{ once: true, margin: "-100px" }}
+              className="text-center md:border-r border-stroke last:border-r-0">
+              <div className="text-6xl md:text-7xl font-display italic text-text-primary">{s.value}</div>
+              <div className="text-sm text-muted mt-3 font-body">{s.label}</div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============ Newsletter Signup — futuristic overlay card ============ */
+function NewsletterSignup() {
+  const [firstName, setFirstName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [status, setStatus] = React.useState("idle"); // idle | sending | error | done
+  const submitted = status === "done";
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!firstName.trim() || !email.trim() || status === "sending") return;
+    setStatus("sending");
+    fetch("https://formspree.io/f/xzdneooq", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        firstName: firstName.trim(),
+        email: email.trim(),
+        form_type: "newsletter",
+        _subject: "New newsletter signup",
+      }),
+    })
+      .then((r) => { if (r.ok) setStatus("done"); else throw new Error("bad status"); })
+      .catch(() => setStatus("error"));
+  };
+
+  return (
+    <div className="relative max-w-[900px] mx-auto mb-16 rounded-[28px] border border-white/10 bg-surface/80 backdrop-blur-xl shadow-2xl shadow-black/60 overflow-hidden text-left">
+      <div className="absolute inset-0 pointer-events-none"
+           style={{ background: "radial-gradient(ellipse 70% 90% at 15% 50%, rgba(169,142,74,0.18), transparent 65%)" }} />
+      <div className="relative grid md:grid-cols-[2fr_3fr]">
+        <div className="relative overflow-hidden h-48 md:h-auto">
+          <img src="assets/img/newsletter-neon-head.jpg" alt=""
+               className="absolute inset-0 w-full h-full object-cover"
+               style={{ objectPosition: "50% 30%" }} />
+          <div className="md:hidden absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-transparent to-[#0f0f0f]" />
+          <div className="hidden md:block absolute inset-y-0 right-0 w-16 bg-gradient-to-r from-transparent to-[#0f0f0f]" />
+        </div>
+        <div className="p-8 md:p-10">
+          {submitted ? (
+            <div className="flex flex-col items-start justify-center h-full py-6">
+              <span className="inline-flex items-center gap-2 text-sm font-body text-white/80 mb-3">
+                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse-dot" /> You're on the list
+              </span>
+              <h3 className="text-3xl md:text-4xl font-display italic mb-3">Welcome, {firstName.trim()}.</h3>
+              <p className="text-muted font-body text-sm">
+                Our next market insight will land in your inbox at {email.trim()}. No spam, unsubscribe anytime.
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <h3 className="text-3xl md:text-4xl font-display mb-3">
+                Subscribe for <span className="italic">Monthly Insights</span>
+              </h3>
+              <p className="text-muted font-body text-sm mb-6">
+                Join our community of subscribers and receive market perspective, planning ideas,
+                and firm updates straight to your inbox. Quick, easy, and free.
+              </p>
+              <p className="text-xs uppercase tracking-[0.2em] text-white/60 font-body mb-3">Stay up to date</p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="text" required value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="First name" aria-label="First name"
+                  className="flex-1 min-w-0 rounded-xl bg-white/5 border border-white/15 px-4 py-3 text-sm font-body text-text-primary placeholder-white/40 outline-none focus:border-[#C9A961] focus:ring-1 focus:ring-[#C9A961]/50 transition-colors" />
+                <input
+                  type="email" required value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email address" aria-label="Email address"
+                  className="flex-[1.4] min-w-0 rounded-xl bg-white/5 border border-white/15 px-4 py-3 text-sm font-body text-text-primary placeholder-white/40 outline-none focus:border-[#C9A961] focus:ring-1 focus:ring-[#C9A961]/50 transition-colors" />
+              </div>
+              <button type="submit" disabled={status === "sending"}
+                className="mt-3 w-full sm:w-auto accent-gradient rounded-xl px-8 py-3 text-sm font-body font-semibold text-black hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-wait">
+                {status === "sending" ? "Subscribing…" : "Subscribe"}
+              </button>
+              {status === "error" && (
+                <p className="mt-3 text-sm font-body text-red-400">
+                  Something went wrong — please try again, or email us at clientservices@princetonam.com.
+                </p>
+              )}
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============ Contact / Footer ============ */
+function Footer() {
+  const marqueeRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const tween = gsap.to(marqueeRef.current, { xPercent: -50, duration: 40, ease: "none", repeat: -1 });
+    return () => tween.kill();
+  }, []);
+
+  return (
+    <footer className="relative bg-bg pt-16 md:pt-20 pb-20 md:pb-12 overflow-hidden">
+      <div className="absolute inset-0">
+        <ParticleField className="absolute inset-0 w-full h-full" density={0.6} interactive={false} />
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-bg to-transparent" />
+      </div>
+
+      <div className="relative z-10">
+        <div className="whitespace-nowrap mb-12" aria-hidden="true">
+          <div ref={marqueeRef} className="inline-block text-5xl md:text-7xl font-display italic text-white/90">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <span key={i}>PRESERVING WEALTH ACROSS GENERATIONS&nbsp;•&nbsp;</span>
+            ))}
+          </div>
+        </div>
+
+        <div className="max-w-[1200px] mx-auto px-6 md:px-24 xl:px-16 text-center">
+          <NewsletterSignup />
+
+          <div className="flex flex-col md:flex-row flex-wrap items-center justify-center gap-x-8 gap-y-3 border-t border-white/10 pt-8 text-sm font-body text-white/70">
+            <span>621 NW 53rd Street, Suite 240, Boca Raton, FL 33487</span>
+            <a href="tel:+15618184100" className="hover:text-white transition-colors">561-818-4100</a>
+            <a href="mailto:clientservices@princetonam.com" className="hover:text-white transition-colors">clientservices@princetonam.com</a>
+          </div>
+          <p className="text-xs text-white/40 font-body mt-6">© 2026 Princeton Asset Management. Independent, fee-only fiduciary.</p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ============ App ============ */
+function App() {
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    if (!isLoading) ScrollTrigger.refresh();
+  }, [isLoading]);
+
+  return (
+    <div className="bg-bg">
+      <AnimatePresence>
+        {isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}
+      </AnimatePresence>
+      <Navbar />
+      <Hero ready={!isLoading} />
+      <Services />
+      <ClientOrbit />
+      <Journal />
+      <Stats />
+      <Footer />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
